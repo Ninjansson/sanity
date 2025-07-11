@@ -1,17 +1,18 @@
-import { sanityFetch } from "@/sanity/lib/live";
-import { POST_QUERY } from "@/sanity/lib/queries";
+import { client, sanityFetch } from "@/sanity/lib/client";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import { Post } from "@/components/Post";
+import { POST_QUERY, POSTS_SLUGS_QUERY } from "@/sanity/lib/queries";
 
 export default async function Page({
   params,
 }: {
   params: Promise<{ slug: string }>;
 }) {
-  const { data: post } = await sanityFetch({
+  const post = await sanityFetch({
     query: POST_QUERY,
-    params: await params,
-  });
+    params,
+    revalidate: 3600
+  }); 
 
   if (!post) {
     notFound();
@@ -19,9 +20,22 @@ export default async function Page({
 
   return (
     <main className="container mx-auto grid grid-cols-1 gap-6 p-12">
-      <h1 className="text-4xl font-bold text-balance">{post?.title}</h1>      
-      <hr />
-      <Link href="/posts">&larr; Return to index</Link>
+      <Post {...post} />
     </main>
   );
+}
+
+/**
+ *
+ * @description No cache for single posts
+ * @returns ?
+ *
+ * @see https://www.sanity.io/learn/course/controlling-cached-content-in-next-js/combining-sanity-cdn-with-the-next-js-cache#s-68797873d23c
+ */
+export async function generateStaticParams() {
+  const slugs = await client
+    .withConfig({ useCdn: true })
+    .fetch(POSTS_SLUGS_QUERY);
+ 
+  return slugs;
 }

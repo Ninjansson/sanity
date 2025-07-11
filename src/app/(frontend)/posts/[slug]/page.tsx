@@ -3,17 +3,13 @@ import { notFound } from "next/navigation";
 import { Post } from "@/components/Post";
 import { POST_QUERY, POSTS_SLUGS_QUERY } from "@/sanity/lib/queries";
 
-export default async function Page({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function Page( { params } : { params: Promise<{ slug: string }> } ) {
   const post = await sanityFetch({
     query: POST_QUERY,
     params,
-    revalidate: 3600
-  }); 
-
+    revalidate: 3600,
+  });
+  
   if (!post) {
     notFound();
   }
@@ -36,6 +32,6 @@ export async function generateStaticParams() {
   const slugs = await client
     .withConfig({ useCdn: true })
     .fetch(POSTS_SLUGS_QUERY);
- 
+
   return slugs;
 }

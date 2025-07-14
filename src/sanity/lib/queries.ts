@@ -22,6 +22,7 @@ export const POSTS_QUERY =
   }
 }`);
 
+
 export const POSTS_SLUGS_QUERY =
   defineQuery(`*[_type == "post" && defined(slug.current)]{ 
   "slug": slug.current

@@ -1,8 +1,10 @@
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { type NextRequest, NextResponse } from "next/server";
 import { parseBody } from "next-sanity/webhook";
 
-type WebhookPayload = { path?: string };
+type WebhookPayload = {
+  tags: string[];
+};
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,32 +15,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // console.log(req.headers);
-
     const { isValidSignature, body } = await parseBody<WebhookPayload>(
       req,
-      process.env.SANITY_REVALIDATE_SECRET
-    );    
+      process.env.SANITY_REVALIDATE_SECRET,
+      true // wait for eventual consistency
+    );
 
     if (!isValidSignature) {
-      const message = "APAPAPAPInvalid signature ";
-
+      const message = "Invalid signature";
       return new Response(JSON.stringify({ message, isValidSignature, body }), {
         status: 401,
       });
-    } else if (!body?.path) {
+    } else if (!Array.isArray(body?.tags) || !body.tags.length) {
       const message = "Bad Request";
       return new Response(JSON.stringify({ message, body }), { status: 400 });
     }
 
-    revalidatePath(body.path);
-    const message = `Updated route: ${body.path}`;
-    return NextResponse.json({ body, message });
+    body.tags.forEach((tag) => {
+      revalidateTag(tag);
+    });
+
+    return NextResponse.json({ body });
   } catch (err) {
     console.error(err);
     return new Response((err as Error).message, { status: 500 });
   }
 }
-
-// ngrok http http://localhost:3000
-// https://b63cc2428f76.ngrok-free.app

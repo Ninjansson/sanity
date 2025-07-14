@@ -3,13 +3,15 @@ import { notFound } from "next/navigation";
 import { Post } from "@/components/Post";
 import { POST_QUERY, POSTS_SLUGS_QUERY } from "@/sanity/lib/queries";
 
-export default async function Page( { params } : { params: Promise<{ slug: string }> } ) {
+export default async function Page(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const post = await sanityFetch({
     query: POST_QUERY,
     params,
-    revalidate: 3600,
+    // revalidate: 3600,
+    tags: [`post${params.slug}`, 'author', 'category'], // for tag-based revalidation
   });
-  
+
   if (!post) {
     notFound();
   }

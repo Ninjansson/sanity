@@ -8,8 +8,7 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
   const post = await sanityFetch({
     query: POST_QUERY,
     params,
-    // revalidate: 3600,
-    tags: [`post${params.slug}`, 'author', 'category'], // for tag-based revalidation
+    revalidate: 3600, // 1 hour
   });
 
   if (!post) {
@@ -32,7 +31,7 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
  */
 export async function generateStaticParams() {
   const slugs = await client
-    .withConfig({ useCdn: true })
+    .withConfig({ useCdn: false })
     .fetch(POSTS_SLUGS_QUERY);
 
   return slugs;

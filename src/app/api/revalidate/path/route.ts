@@ -4,7 +4,7 @@ import { parseBody } from "next-sanity/webhook";
 
 type WebhookPayload = { path?: string };
 
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest) {  
   try {
     if (!process.env.SANITY_REVALIDATE_SECRET) {
       return new Response(
@@ -13,16 +13,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // console.log(req.headers);
-
     const { isValidSignature, body } = await parseBody<WebhookPayload>(
       req,
-      process.env.SANITY_REVALIDATE_SECRET
-    );    
+      process.env.SANITY_REVALIDATE_SECRET,
+      true // Add short delay to avoid displaying stale content
+    );
 
     if (!isValidSignature) {
-      const message = "APAPAPAPInvalid signature ";
-
+      const message = "Invalid signature";
       return new Response(JSON.stringify({ message, isValidSignature, body }), {
         status: 401,
       });

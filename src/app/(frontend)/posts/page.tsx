@@ -5,8 +5,7 @@ import { sanityFetch } from "@/sanity/lib/client";
 export default async function Page() {
   const posts = await sanityFetch({
     query: POSTS_QUERY,
-    // revalidate: 3600,
-    tags: ['post', 'author', 'category'], // for tag-based revalidation
+    revalidate: 3600, // 1 hour
   });
 
   return (

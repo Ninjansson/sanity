@@ -1,3 +1,4 @@
+import { Author } from "@/components/Author";
 import Link from "next/link";
 import { POSTS_QUERY } from "@/sanity/lib/queries";
 import { sanityFetch } from "@/sanity/lib/client";
@@ -6,7 +7,7 @@ export default async function Page() {
   const posts = await sanityFetch({
     query: POSTS_QUERY,
     // revalidate: 3600, // 1 hour
-    tags: ['post', 'author', 'category'],
+    tags: ["post", "author", "category"],
   });
 
   return (
@@ -21,6 +22,7 @@ export default async function Page() {
             >
               {post?.title}
             </Link>
+            <Author author={post?.author} />
           </li>
         ))}
       </ul>

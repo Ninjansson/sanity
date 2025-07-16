@@ -8,7 +8,8 @@ export default async function Page(props: { params: Promise<{ slug: string }> })
   const post = await sanityFetch({
     query: POST_QUERY,
     params,
-    revalidate: 3600, // 1 hour
+    // revalidate: 3600, // 1 hour
+    tags: [`post:${params.slug}`, 'author', 'category'],
   });
 
   if (!post) {

@@ -16,8 +16,8 @@ export default async function FrontendLayout({
       <SanityLive />
       {(await draftMode()).isEnabled && (
         <>
-          <DisableDraftMode />
           <VisualEditing />
+          <DisableDraftMode />
         </>
       )}
     </section>
